@@ -19,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 use OpenTelemetry\API\Globals;
 use OpenTelemetry\API\Trace\Span;
+use OpenTelemetry\API\Trace\SpanInterface;
 use OpenTelemetry\API\Trace\SpanKind;
 use OpenTelemetry\API\Trace\StatusCode;
 use OpenTelemetry\Context\Context;
@@ -34,7 +35,12 @@ use function OpenTelemetryPHP74\Instrumentation\hook;
 class Kernel implements LaravelHook
 {
     use LaravelHookTrait;
-    use PostHookTrait;
+
+    /** @var array<string, SpanInterface> */
+    private array $activeHttpSpans = [];
+
+    /** @var array<string, \OpenTelemetry\Context\ScopeInterface> */
+    private array $activeHttpScopes = [];
 
     public function instrument(): void
     {
@@ -49,6 +55,7 @@ class Kernel implements LaravelHook
             'handle',
             function (KernelContract $kernel, array $params, string $class, string $function, ?string $filename, ?int $lineno) {
                 $request = ($params[0] instanceof Request) ? $params[0] : null;
+                $spanKey = $this->spanKey($kernel, $request);
                 /** @psalm-suppress ArgumentTypeCoercion */
                 $builder = $this->instrumentation
                     ->tracer()
@@ -78,41 +85,66 @@ class Kernel implements LaravelHook
                 } else {
                     $span = $builder->startSpan();
                 }
-                Context::storage()->attach($span->storeInContext($parent));
+
+                $scope = Context::storage()->attach($span->storeInContext($parent));
+                $this->activeHttpSpans[$spanKey] = $span;
+                $this->activeHttpScopes[$spanKey] = $scope;
 
                 return [$request];
             },
             function (KernelContract $kernel, array $params, ?Response $response, ?Throwable $exception) {
-                $scope = Context::storage()->scope();
-                if (!$scope) {
+                $request = ($params[0] instanceof Request) ? $params[0] : null;
+                $spanKey = $this->spanKey($kernel, $request);
+
+                $span = $this->activeHttpSpans[$spanKey] ?? null;
+                $scope = $this->activeHttpScopes[$spanKey] ?? null;
+
+                if (!$span || !$scope) {
                     return;
                 }
-                $span = Span::fromContext($scope->context());
 
-                $request = ($params[0] instanceof Request) ? $params[0] : null;
-                $route = $request !== null ? $request->route() : null;
+                try {
+                    $route = $request !== null ? $request->route() : null;
 
-                if ($request && $route instanceof Route) {
-                    $span->updateName("{$request->method()} /" . ltrim($route->uri, '/'));
-                    $span->setAttribute('http.route', $route->uri);
-                }
-
-                if ($response) {
-                    if ($response->getStatusCode() >= 500) {
-                        $span->setStatus(StatusCode::STATUS_ERROR);
+                    if ($request && $route instanceof Route) {
+                        $span->updateName("{$request->method()} /" . ltrim($route->uri, '/'));
+                        $span->setAttribute('http.route', $route->uri);
                     }
-                    $span->setAttribute('http.response.status_code', $response->getStatusCode());
-                    $span->setAttribute('network.protocol.version', $response->getProtocolVersion());
-                    $span->setAttribute('http.response.body.size', $response->headers->get('Content-Length'));
 
-                    // $prop = Globals::responsePropagator();
-                    //** @phan-suppress-next-line PhanAccessMethodInternal */
-                    // $prop->inject($response, ResponsePropagationSetter::instance(), $scope->context());
+                    if ($response) {
+                        if ($response->getStatusCode() >= 500) {
+                            $span->setStatus(StatusCode::STATUS_ERROR);
+                        }
+                        $span->setAttribute('http.response.status_code', $response->getStatusCode());
+                        $span->setAttribute('network.protocol.version', $response->getProtocolVersion());
+                        $span->setAttribute('http.response.body.size', $response->headers->get('Content-Length'));
+
+                        // $prop = Globals::responsePropagator();
+                        //** @phan-suppress-next-line PhanAccessMethodInternal */
+                        // $prop->inject($response, ResponsePropagationSetter::instance(), $scope->context());
+                    }
+
+                    if ($exception) {
+                        $span->recordException($exception);
+                        $span->setStatus(StatusCode::STATUS_ERROR, $exception->getMessage());
+                    }
+
+                    $span->end();
+                } finally {
+                    $scope->detach();
+                    unset($this->activeHttpSpans[$spanKey], $this->activeHttpScopes[$spanKey]);
                 }
-
-                $this->endSpan($exception);
             }
         );
+    }
+
+    private function spanKey(KernelContract $kernel, ?Request $request): string
+    {
+        if ($request !== null) {
+            return 'request:' . spl_object_id($request);
+        }
+
+        return 'kernel:' . spl_object_id($kernel);
     }
 
     private function httpTarget(Request $request): string

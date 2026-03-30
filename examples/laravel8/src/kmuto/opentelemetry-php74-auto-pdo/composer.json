@@ -1,0 +1,47 @@
+{
+  "name": "kmuto/opentelemetry-php74-auto-pdo",
+  "description": "OpenTelemetry auto-instrumentation for PDO with PHP 7.4",
+  "keywords": ["opentelemetry", "otel", "open-telemetry", "tracing", "pdo", "instrumentation"],
+  "type": "library",
+  "homepage": "https://opentelemetry.io/docs/languages/php/",
+  "readme": "./README.md",
+  "license": "Apache-2.0",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": "^7.4",
+    "ext-pdo": "*",
+    "ext-opentelemetry_php74": "*",
+    "open-telemetry/api": "^1.0",
+    "open-telemetry/sem-conv": "^1.0",
+    "symfony/polyfill-mbstring": "^1.33"
+  },
+  "suggest": {
+    "ext-mbstring": "For better performance than symfony/polyfill-mbstring"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3",
+    "phan/phan": "^5.0",
+    "php-http/mock-client": "*",
+    "phpstan/phpstan": "^1.1",
+    "phpstan/phpstan-phpunit": "^1.0",
+    "psalm/plugin-phpunit": "^0.19.2",
+    "open-telemetry/sdk": "^1.0",
+    "open-telemetry/test-utils": "^0.2.0",
+    "phpunit/phpunit": "^9.5",
+    "vimeo/psalm": "6.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "OpenTelemetryPHP74\\Instrumentation\\PDO\\": "src/"
+    },
+    "files": [
+      "_register.php"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": false
+    }
+  }
+}

@@ -23,6 +23,8 @@ RUN phpize \
     && make -j$(nproc) \
     && make install \
     && docker-php-ext-enable opentelemetry_php74
+RUN docker-php-ext-install pdo_mysql \
+    && docker-php-ext-enable pdo_mysql
 
 WORKDIR /app
 

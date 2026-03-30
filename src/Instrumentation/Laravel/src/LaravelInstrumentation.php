@@ -30,6 +30,8 @@ class LaravelInstrumentation
 
         Hooks\Illuminate\Contracts\Http\Kernel::hook($instrumentation);
         Hooks\Illuminate\Database\Eloquent\Model::hook($instrumentation);
+        Hooks\Illuminate\Foundation\Application::hook($instrumentation);
+        Hooks\Illuminate\Foundation\Console\ServeCommand::hook($instrumentation);
     }
 
     public static function shouldTraceCli(): bool

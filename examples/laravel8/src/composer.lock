@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4ab4f45c783b2b41f0ca32b10284651d",
+    "content-hash": "34391a5e566e069afc85a70eeae0b974",
     "packages": [
         {
             "name": "arthur1/opentelemetry-php74-auto-laravel",
@@ -688,16 +688,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v3.25.8",
+            "version": "v3.25.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/protocolbuffers/protobuf-php.git",
-                "reference": "57d440fc54a00fda5b8781e8d9bf0140ea6d8e52"
+                "reference": "7430ad4744937be8ffcc0259a8e921bcf26589f3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/57d440fc54a00fda5b8781e8d9bf0140ea6d8e52",
-                "reference": "57d440fc54a00fda5b8781e8d9bf0140ea6d8e52",
+                "url": "https://api.github.com/repos/protocolbuffers/protobuf-php/zipball/7430ad4744937be8ffcc0259a8e921bcf26589f3",
+                "reference": "7430ad4744937be8ffcc0259a8e921bcf26589f3",
                 "shasum": ""
             },
             "require": {
@@ -726,9 +726,9 @@
                 "proto"
             ],
             "support": {
-                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v3.25.8"
+                "source": "https://github.com/protocolbuffers/protobuf-php/tree/v3.25.9"
             },
-            "time": "2025-05-27T21:04:40+00:00"
+            "time": "2026-03-25T20:44:55+00:00"
         },
         {
             "name": "graham-campbell/result-type",
@@ -1175,6 +1175,63 @@
                 "source": "https://github.com/http-interop/http-factory-guzzle/tree/1.2.1"
             },
             "time": "2025-12-15T11:28:16+00:00"
+        },
+        {
+            "name": "kmuto/opentelemetry-php74-auto-pdo",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "kmuto/opentelemetry-php74-auto-pdo",
+                "reference": "d4503c77da39f511c7ab8e6d8fce421e4736056f"
+            },
+            "require": {
+                "ext-opentelemetry_php74": "*",
+                "ext-pdo": "*",
+                "open-telemetry/api": "^1.0",
+                "open-telemetry/sem-conv": "^1.0",
+                "php": "^7.4",
+                "symfony/polyfill-mbstring": "^1.33"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3",
+                "open-telemetry/sdk": "^1.0",
+                "open-telemetry/test-utils": "^0.2.0",
+                "phan/phan": "^5.0",
+                "php-http/mock-client": "*",
+                "phpstan/phpstan": "^1.1",
+                "phpstan/phpstan-phpunit": "^1.0",
+                "phpunit/phpunit": "^9.5",
+                "psalm/plugin-phpunit": "^0.19.2",
+                "vimeo/psalm": "6.4.0"
+            },
+            "suggest": {
+                "ext-mbstring": "For better performance than symfony/polyfill-mbstring"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OpenTelemetryPHP74\\Instrumentation\\PDO\\": "src/"
+                },
+                "files": [
+                    "_register.php"
+                ]
+            },
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "OpenTelemetry auto-instrumentation for PDO with PHP 7.4",
+            "homepage": "https://opentelemetry.io/docs/languages/php/",
+            "keywords": [
+                "instrumentation",
+                "open-telemetry",
+                "opentelemetry",
+                "otel",
+                "pdo",
+                "tracing"
+            ],
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "laravel/framework",
@@ -8671,7 +8728,8 @@
     "aliases": [],
     "minimum-stability": "beta",
     "stability-flags": {
-        "arthur1/opentelemetry-php74-auto-laravel": 20
+        "arthur1/opentelemetry-php74-auto-laravel": 20,
+        "kmuto/opentelemetry-php74-auto-pdo": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
