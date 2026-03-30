@@ -1,10 +1,16 @@
 services:
-  jaeger:
-    image: jaegertracing/all-in-one:1.76.0
-    ports:
-      - "16686:16686"
+  #jaeger:
+  #  image: jaegertracing/all-in-one:1.76.0
+  #  ports:
+  #    - "16686:16686"
+  #  environment:
+  #    - COLLECTOR_OTLP_ENABLED=true
+
+  mackerel:
+    image: mackerel/otelcol-mackerel:latest
     environment:
-      - COLLECTOR_OTLP_ENABLED=true
+      MACKEREL_APIKEY: "${MACKEREL_APIKEY}"
+      OTELCOL_MACKEREL_HOST: mackerel
 
   app:
     build:
@@ -17,11 +23,12 @@ services:
       - OTEL_SERVICE_NAME=laravel8-php74-demo
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      #- OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://mackerel:4318
       - OTEL_PHP_AUTOLOAD_ENABLED=true
       - OTEL_PHP_TRACES_PROCESSOR=simple
-    depends_on:
-      - jaeger
+    #depends_on:
+    #  - jaeger
  
   db:
     image: mariadb:10.6
