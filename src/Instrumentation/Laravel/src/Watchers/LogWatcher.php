@@ -2,6 +2,16 @@
 
 declare(strict_types=1);
 
+/**
+ * Based on code from opentelemetry/opentelemetry-php-contrib
+ * Copyright 2021 opentelemetry-php-contrib contributors
+ * Licensed under the Apache License, Version 2.0
+ * 
+ * Modifications:
+ * - Added support for PHP 7.4
+ * - Updated to use OpenTelemetry extension for PHP 7.4
+ */
+
 namespace OpenTelemetryPHP74\Instrumentation\Laravel\Watchers;
 
 use Illuminate\Contracts\Foundation\Application;
@@ -69,11 +79,11 @@ class LogWatcher extends Watcher
             'context' => json_encode($contextToEncode)
         ];
         if ($exception != null) {
-          $attributes = array_merge($attributes, [
+            $attributes = array_merge($attributes, [
                 'exception.type' => get_class($exception),
                 'exception.message' => $exception->getMessage(),
                 'exception.stacktrace' => StackTraceFormatter::format($exception)
-          ]);
+            ]);
         }
 
         $severityMap = [
